@@ -145,6 +145,7 @@ dotnet run --project RemoteWakeUp/RemoteWakeUp.csproj
 
 ```bash
 docker run -d --restart=always \
+-e "IsUseSwagger"=true \
 -e "WakeUp__MacList__0__Name=台式机" \
 -e "WakeUp__MacList__0__IP=192.168.31.32" \
 -e "WakeUp__MacList__0__MAC=74:56:3C:7A:6F:70" \
@@ -158,6 +159,7 @@ docker run -d --restart=always \
 
 ```bash
 docker run -d --restart=always \
+-e "IsUseSwagger"=true \
 -e "WakeUp__MacList__0__Name=台式机" \
 -e "WakeUp__MacList__0__IP=192.168.31.32" \
 -e "WakeUp__MacList__0__MAC=74:56:3C:7A:6F:70" \
