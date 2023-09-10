@@ -24,7 +24,13 @@ docker pull ccrui/remotewakeup:latest
 2. 运行容器（使用默认配置）：
 
 ```bash
-docker run -d -p 9000:9000 ccrui/remotewakeup:latest
+docker run -d --restart=always \
+-e "IsUseSwagger"=true \
+-e "WakeUp__MacList__0__Name=台式机" \
+-e "WakeUp__MacList__0__IP=192.168.31.32" \
+-e "WakeUp__MacList__0__MAC=74:56:3C:7A:6F:70" \
+--network host \
+ccrui/remotewakeup:latest
 ```
 
 </details>
@@ -38,10 +44,16 @@ docker run -d -p 9000:9000 ccrui/remotewakeup:latest
 docker build -t remotewakeup .
 ```
 
-2. 运行容器（使用默认配置）：
+2. 运行容器：
 
 ```bash
-docker run -d -p 9000:9000 ccrui/remotewakeup:latest
+docker run -d --restart=always \
+-e "IsUseSwagger"=true \
+-e "WakeUp__MacList__0__Name=台式机" \
+-e "WakeUp__MacList__0__IP=192.168.31.32" \
+-e "WakeUp__MacList__0__MAC=74:56:3C:7A:6F:70" \
+--network host \
+ccrui/remotewakeup:latest
 ```
 
 </details>
@@ -149,7 +161,8 @@ docker run -d --restart=always \
 -e "WakeUp__MacList__0__Name=台式机" \
 -e "WakeUp__MacList__0__IP=192.168.31.32" \
 -e "WakeUp__MacList__0__MAC=74:56:3C:7A:6F:70" \
--p 9000:9000 ccrui/remotewakeup:latest
+--network host \
+ccrui/remotewakeup:latest
 ```
 
 其中 `WakeUp__MacList__0__Name` 是第一个设备名称，
@@ -166,6 +179,7 @@ docker run -d --restart=always \
 -e "WakeUp__MacList__1__Name=笔记本" \
 -e "WakeUp__MacList__0__IP=192.168.31.33" \
 -e "WakeUp__MacList__0__MAC=74:56:3C:7A:6F:71" \
+--network host \
 -p 9000:9000 ccrui/remotewakeup:latest
 ```
 
