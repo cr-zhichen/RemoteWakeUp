@@ -24,7 +24,7 @@ docker pull ccrui/remotewakeup:latest
 2. 运行容器（使用默认配置）：
 
 ```bash
-docker run -p 9000:9000 ccrui/remotewakeup:latest
+docker run -d -p 9000:9000 ccrui/remotewakeup:latest
 ```
 
 </details>
@@ -41,7 +41,7 @@ docker build -t remotewakeup .
 2. 运行容器（使用默认配置）：
 
 ```bash
-docker run -p 9000:9000 remotewakeup
+docker run -d -p 9000:9000 remotewakeup
 ```
 
 </details>
@@ -109,13 +109,13 @@ dotnet run --project RemoteWakeUp/RemoteWakeUp.csproj
 如果您使用Docker运行，则可以使用Docker环境变量的方式覆盖配置。例如，您可以使用以下命令运行容器：
 
 ```bash
-docker run -e "WakeUp__MacList__0=AB:CD:EF:12:34:56" -p 9000:9000 remotewakeup
+docker run -d --restart=always -e "WakeUp__MacList__0=AB:CD:EF:12:34:56" -p 9000:9000 ccrui/remotewakeup:latest
 ```
 
 其中 `WakeUp__MacList__0` 是第一个 MAC 地址。如果要添加更多 MAC 地址，可以按照以下格式：
 
 ```bash
-docker run -e "WakeUp__MacList__0=AB:CD:EF:12:34:56" -e "WakeUp__MacList__1=GH:IJ:KL:78:90:12" -p 9000:9000 remotewakeup
+docker run -d --restart=always -e "WakeUp__MacList__0=AB:CD:EF:12:34:56" -e "WakeUp__MacList__1=GH:IJ:KL:78:90:12" -p 9000:9000 ccrui/remotewakeup:latest
 ```
 
 ## 依赖 📦
