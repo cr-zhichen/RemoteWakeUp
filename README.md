@@ -41,7 +41,7 @@ docker build -t remotewakeup .
 2. 运行容器（使用默认配置）：
 
 ```bash
-docker run -d -p 9000:9000 remotewakeup
+docker run -d -p 9000:9000 ccrui/remotewakeup:latest
 ```
 
 </details>
@@ -70,7 +70,37 @@ dotnet run --project RemoteWakeUp/RemoteWakeUp.csproj
 
 ## API 🌐
 
-- `GET /api/command/wakeUp`：发送 WOL 数据包到配置文件中指定的所有 MAC 地址。
+1. **WOL 功能 (Wake On Lan)：**
+
+    - `GET /api/command/wakeUp`
+        - **功能**：发送 WOL 数据包到配置文件中指定的所有 MAC 地址。
+        - **返回值**：发送成功的消息和相关设备列表。
+
+    - `GET /api/command/wakeUpByName/{name}`
+        - **功能**：根据提供的设备名发送 WOL 数据包。
+        - **参数**：`name` - 设备名称。
+        - **返回值**：发送成功的消息和相关设备信息或未找到设备的消息。
+
+    - `GET /api/command/wakeUp/{mac}`
+        - **功能**：发送 WOL 数据包到指定的 MAC 地址。
+        - **参数**：`mac` - MAC 地址。
+        - **返回值**：发送成功的消息和指定的 MAC 地址。
+
+2. **在线状态检查功能：**
+
+    - `GET /api/command/isOnline`
+        - **功能**：获取配置文件中所有设备的在线状态。
+        - **返回值**：设备在线状态的消息和相关设备列表。
+
+    - `GET /api/command/isOnlineByName/{name}`
+        - **功能**：根据提供的设备名检查设备是否在线。
+        - **参数**：`name` - 设备名称。
+        - **返回值**：设备的在线状态消息和相关设备信息或未找到设备的消息。
+
+    - `GET /api/command/isOnline/{ip}`
+        - **功能**：检查指定的 IP 地址是否在线。
+        - **参数**：`ip` - IP 地址。
+        - **返回值**：IP 地址的在线状态消息。
 
 ## 配置 ⚙️
 
@@ -98,9 +128,14 @@ dotnet run --project RemoteWakeUp/RemoteWakeUp.csproj
     "Audience": "[输入Audience，随便填]",
     "ExpireMinutes": 30
   },
+  "IsUseSwagger": true,
   "WakeUp": {
     "MacList": [
-      "AB:CD:EF:12:34:56"
+      {
+        "Name": "台式机",
+        "IP": "192.168.31.32",
+        "MAC": "74:56:3C:7A:6F:70"
+      }
     ]
   }
 }
@@ -109,13 +144,27 @@ dotnet run --project RemoteWakeUp/RemoteWakeUp.csproj
 如果您使用Docker运行，则可以使用Docker环境变量的方式覆盖配置。例如，您可以使用以下命令运行容器：
 
 ```bash
-docker run -d --restart=always -e "WakeUp__MacList__0=AB:CD:EF:12:34:56" -p 9000:9000 ccrui/remotewakeup:latest
+docker run -d --restart=always \
+-e "WakeUp__MacList__0__Name=台式机" \
+-e "WakeUp__MacList__0__IP=192.168.31.32" \
+-e "WakeUp__MacList__0__MAC=74:56:3C:7A:6F:70" \
+-p 9000:9000 ccrui/remotewakeup:latest
 ```
 
-其中 `WakeUp__MacList__0` 是第一个 MAC 地址。如果要添加更多 MAC 地址，可以按照以下格式：
+其中 `WakeUp__MacList__0__Name` 是第一个设备名称，
+`WakeUp__MacList__0__IP` 是第一个设备的 IP 地址，
+`WakeUp__MacList__0__MAC` 是第一个设备的 MAC 地址。
+如果要添加更多设备，可以按照以下格式：
 
 ```bash
-docker run -d --restart=always -e "WakeUp__MacList__0=AB:CD:EF:12:34:56" -e "WakeUp__MacList__1=GH:IJ:KL:78:90:12" -p 9000:9000 ccrui/remotewakeup:latest
+docker run -d --restart=always \
+-e "WakeUp__MacList__0__Name=台式机" \
+-e "WakeUp__MacList__0__IP=192.168.31.32" \
+-e "WakeUp__MacList__0__MAC=74:56:3C:7A:6F:70" \
+-e "WakeUp__MacList__1__Name=笔记本" \
+-e "WakeUp__MacList__0__IP=192.168.31.33" \
+-e "WakeUp__MacList__0__MAC=74:56:3C:7A:6F:71" \
+-p 9000:9000 ccrui/remotewakeup:latest
 ```
 
 ## 依赖 📦

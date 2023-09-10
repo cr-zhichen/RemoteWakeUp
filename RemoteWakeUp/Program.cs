@@ -116,8 +116,8 @@ builder.Services.AddTransient<WebSocketController>();
 // 构建Web应用程序
 var app = builder.Build();
 
-// 如果当前是开发环境
-if (app.Environment.IsDevelopment())
+var isUseSwagger = builder.Configuration.GetSection("IsUseSwagger").Get<bool>();
+if (isUseSwagger)
 {
     // 启用Swagger中间件以为JSON终端点生成Swagger文档
     app.UseSwagger();
@@ -125,9 +125,6 @@ if (app.Environment.IsDevelopment())
     // 启用Swagger UI
     app.UseSwaggerUI();
 }
-
-// 强制HTTP请求重定向到HTTPS
-// app.UseHttpsRedirection();
 
 //JWT认证
 app.UseAuthentication();
@@ -168,6 +165,20 @@ app.Use(async (context, next) =>
 
 // 将控制器路由映射到MVC中间件
 app.MapControllers();
+
+app.UseRouting();
+if (isUseSwagger)
+{
+    // 配置端点
+    app.UseEndpoints(endpoints =>
+    {
+        endpoints.MapGet("/", httpContext =>
+        {
+            httpContext.Response.Redirect("/swagger");
+            return Task.CompletedTask;
+        });
+    });
+}
 
 // 运行应用
 app.Run();
