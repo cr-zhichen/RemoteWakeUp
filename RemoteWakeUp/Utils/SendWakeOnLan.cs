@@ -32,6 +32,7 @@ public static class SendWakeOnLan
         // 使用UDP发送魔术包
         using (UdpClient client = new UdpClient())
         {
+            client.EnableBroadcast = true;
             client.Send(magicPacket, magicPacket.Length,
                 new IPEndPoint(IPAddress.Parse(subnetBroadcastAddress ?? "255.255.255.255"), WOL_PORT));
         }
