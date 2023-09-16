@@ -21,7 +21,7 @@
 docker pull ccrui/remotewakeup:latest
 ```
 
-2. 运行容器（使用默认配置）：
+2. 运行容器：
 
 ```bash
 docker run -d --restart=always \
@@ -29,7 +29,7 @@ docker run -d --restart=always \
 -e "WakeUp__MacList__0__Name=台式机" \
 -e "WakeUp__MacList__0__IP=192.168.2.3" \
 -e "WakeUp__MacList__0__MAC=74:56:3C:7A:6F:70" \
--e "WakeUp__SubnetBroadcastAddress=192.168.2.255\
+-e "WakeUp__SubnetBroadcastAddress=192.168.2.255" \
 --network host \
 ccrui/remotewakeup:latest
 ```
@@ -53,7 +53,7 @@ docker run -d --restart=always \
 -e "WakeUp__MacList__0__Name=台式机" \
 -e "WakeUp__MacList__0__IP=192.168.2.3" \
 -e "WakeUp__MacList__0__MAC=74:56:3C:7A:6F:70" \
--e "WakeUp__SubnetBroadcastAddress=192.168.2.255\
+-e "WakeUp__SubnetBroadcastAddress=192.168.2.255" \
 --network host \
 ccrui/remotewakeup:latest
 ```
@@ -166,7 +166,7 @@ docker run -d --restart=always \
 -e "WakeUp__MacList__0__Name=台式机" \
 -e "WakeUp__MacList__0__IP=192.168.2.3" \
 -e "WakeUp__MacList__0__MAC=74:56:3C:7A:6F:70" \
--e "WakeUp__SubnetBroadcastAddress=192.168.2.255\
+-e "WakeUp__SubnetBroadcastAddress=192.168.2.255" \
 --network host \
 ccrui/remotewakeup:latest
 ```
@@ -183,11 +183,11 @@ docker run -d --restart=always \
 -e "WakeUp__MacList__0__IP=192.168.2.3" \
 -e "WakeUp__MacList__0__MAC=74:56:3C:7A:6F:70" \
 -e "WakeUp__MacList__1__Name=笔记本" \
--e "WakeUp__MacList__0__IP=192.168.2.33" \
--e "WakeUp__MacList__0__MAC=74:56:3C:7A:6F:71" \
--e "WakeUp__SubnetBroadcastAddress=192.168.2.255\
+-e "WakeUp__MacList__1__IP=192.168.2.33" \
+-e "WakeUp__MacList__1__MAC=74:56:3C:7A:6F:71" \
+-e "WakeUp__SubnetBroadcastAddress=192.168.2.255" \
 --network host \
--p 9000:9000 ccrui/remotewakeup:latest
+ccrui/remotewakeup:latest
 ```
 
 请注意，使用Docker运行时，因为Docker网络限制，您需要将 `WakeUp__SubnetBroadcastAddress` 设置为您的子网广播地址，而不是255.255.255.255。
