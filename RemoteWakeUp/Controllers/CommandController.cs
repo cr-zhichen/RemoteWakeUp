@@ -31,10 +31,11 @@ public class CommandController : ControllerBase
     public async Task<IRe<object>> WakeUp()
     {
         List<WakeUpDevice> devices = _configuration.GetSection("WakeUp:MacList").Get<List<WakeUpDevice>>();
+        string? subnetBroadcastAddress = _configuration.GetSection("WakeUp:SubnetBroadcastAddress").Value;
 
         foreach (var device in devices)
         {
-            SendWakeOnLan.SendWakeOnLanPacket(device.MAC);
+            SendWakeOnLan.SendWakeOnLanPacket(device.MAC, subnetBroadcastAddress);
         }
 
         return new Ok<object>()
@@ -54,12 +55,13 @@ public class CommandController : ControllerBase
     public async Task<IRe<object>> WakeUpByName(string name)
     {
         List<WakeUpDevice> devices = _configuration.GetSection("WakeUp:MacList").Get<List<WakeUpDevice>>();
+        string? subnetBroadcastAddress = _configuration.GetSection("WakeUp:SubnetBroadcastAddress").Value;
 
         foreach (var device in devices)
         {
             if (device.Name == name)
             {
-                SendWakeOnLan.SendWakeOnLanPacket(device.MAC);
+                SendWakeOnLan.SendWakeOnLanPacket(device.MAC, subnetBroadcastAddress);
                 return new Ok<object>()
                 {
                     Message = "发送WOL数据包成功",
@@ -81,11 +83,12 @@ public class CommandController : ControllerBase
     /// 根据传入的mac唤醒设备
     /// </summary>
     /// <param name="mac"></param>
+    /// <param name="subnetBroadcastAddress">子网的广播地址,为空则255.255.255.255广播</param>
     /// <returns></returns>
     [HttpGet("wakeUp/{mac}")]
-    public async Task<IRe<object>> WakeUp(string mac)
+    public async Task<IRe<object>> WakeUp(string mac, string? subnetBroadcastAddress)
     {
-        SendWakeOnLan.SendWakeOnLanPacket(mac);
+        SendWakeOnLan.SendWakeOnLanPacket(mac, subnetBroadcastAddress);
 
         return new Ok<object>()
         {

@@ -8,8 +8,9 @@ public static class SendWakeOnLan
     /// <summary>
     /// 发送WOL数据包
     /// </summary>
-    /// <param name="macAddress"></param>
-    public static void SendWakeOnLanPacket(string macAddress)
+    /// <param name="macAddress">目标设备的MAC地址</param>
+    /// <param name="subnetBroadcastAddress">子网的广播地址</param>
+    public static void SendWakeOnLanPacket(string macAddress, string? subnetBroadcastAddress)
     {
         const int WOL_PORT = 9;
 
@@ -31,7 +32,8 @@ public static class SendWakeOnLan
         // 使用UDP发送魔术包
         using (UdpClient client = new UdpClient())
         {
-            client.Send(magicPacket, magicPacket.Length, new IPEndPoint(IPAddress.Broadcast, WOL_PORT));
+            client.Send(magicPacket, magicPacket.Length,
+                new IPEndPoint(IPAddress.Parse(subnetBroadcastAddress ?? "255.255.255.255"), WOL_PORT));
         }
     }
 

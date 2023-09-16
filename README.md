@@ -27,8 +27,9 @@ docker pull ccrui/remotewakeup:latest
 docker run -d --restart=always \
 -e "IsUseSwagger"=true \
 -e "WakeUp__MacList__0__Name=台式机" \
--e "WakeUp__MacList__0__IP=192.168.31.32" \
+-e "WakeUp__MacList__0__IP=192.168.2.3" \
 -e "WakeUp__MacList__0__MAC=74:56:3C:7A:6F:70" \
+-e "WakeUp__SubnetBroadcastAddress=192.168.2.255\
 --network host \
 ccrui/remotewakeup:latest
 ```
@@ -50,8 +51,9 @@ docker build -t remotewakeup .
 docker run -d --restart=always \
 -e "IsUseSwagger"=true \
 -e "WakeUp__MacList__0__Name=台式机" \
--e "WakeUp__MacList__0__IP=192.168.31.32" \
+-e "WakeUp__MacList__0__IP=192.168.2.3" \
 -e "WakeUp__MacList__0__MAC=74:56:3C:7A:6F:70" \
+-e "WakeUp__SubnetBroadcastAddress=192.168.2.255\
 --network host \
 ccrui/remotewakeup:latest
 ```
@@ -93,10 +95,12 @@ dotnet run --project RemoteWakeUp/RemoteWakeUp.csproj
         - **参数**：`name` - 设备名称。
         - **返回值**：发送成功的消息和相关设备信息或未找到设备的消息。
 
-    - `GET /api/command/wakeUp/{mac}`
-        - **功能**：发送 WOL 数据包到指定的 MAC 地址。
-        - **参数**：`mac` - MAC 地址。
-        - **返回值**：发送成功的消息和指定的 MAC 地址。
+    - `GET /api/wakeUp/{mac}?subnetBroadcastAddress={subnetBroadcastAddress}`
+        - **功能**：根据传入的 MAC 地址唤醒设备。
+        - **参数**：
+            - `mac` - MAC 地址。
+            - `subnetBroadcastAddress` - 子网的广播地址。如果为空，默认为255.255.255.255。
+        - **返回值**：发送成功的消息、代码为0，以及指定的 MAC 地址。
 
 2. **在线状态检查功能：**
 
@@ -142,10 +146,11 @@ dotnet run --project RemoteWakeUp/RemoteWakeUp.csproj
   },
   "IsUseSwagger": true,
   "WakeUp": {
+    "SubnetBroadcastAddress": "255.255.255.255",
     "MacList": [
       {
         "Name": "台式机",
-        "IP": "192.168.31.32",
+        "IP": "192.168.2.3",
         "MAC": "74:56:3C:7A:6F:70"
       }
     ]
@@ -159,8 +164,9 @@ dotnet run --project RemoteWakeUp/RemoteWakeUp.csproj
 docker run -d --restart=always \
 -e "IsUseSwagger"=true \
 -e "WakeUp__MacList__0__Name=台式机" \
--e "WakeUp__MacList__0__IP=192.168.31.32" \
+-e "WakeUp__MacList__0__IP=192.168.2.3" \
 -e "WakeUp__MacList__0__MAC=74:56:3C:7A:6F:70" \
+-e "WakeUp__SubnetBroadcastAddress=192.168.2.255\
 --network host \
 ccrui/remotewakeup:latest
 ```
@@ -174,14 +180,17 @@ ccrui/remotewakeup:latest
 docker run -d --restart=always \
 -e "IsUseSwagger"=true \
 -e "WakeUp__MacList__0__Name=台式机" \
--e "WakeUp__MacList__0__IP=192.168.31.32" \
+-e "WakeUp__MacList__0__IP=192.168.2.3" \
 -e "WakeUp__MacList__0__MAC=74:56:3C:7A:6F:70" \
 -e "WakeUp__MacList__1__Name=笔记本" \
--e "WakeUp__MacList__0__IP=192.168.31.33" \
+-e "WakeUp__MacList__0__IP=192.168.2.33" \
 -e "WakeUp__MacList__0__MAC=74:56:3C:7A:6F:71" \
+-e "WakeUp__SubnetBroadcastAddress=192.168.2.255\
 --network host \
 -p 9000:9000 ccrui/remotewakeup:latest
 ```
+
+请注意，使用Docker运行时，因为Docker网络限制，您需要将 `WakeUp__SubnetBroadcastAddress` 设置为您的子网广播地址，而不是255.255.255.255。
 
 ## 依赖 📦
 
