@@ -25,6 +25,14 @@ public class AuthAttribute : ActionFilterAttribute
     /// <param name="next"></param>
     public override async Task OnActionExecutionAsync(ActionExecutingContext context, ActionExecutionDelegate next)
     {
+        var configuration = context.HttpContext.RequestServices.GetService<IConfiguration>();
+
+        if (string.IsNullOrEmpty(configuration.GetSection("WakeUp:Password").Value)) // 判断是否需要跳过验证
+        {
+            await next();
+            return;
+        }
+
         var token = context.HttpContext.Request.Headers["Authorization"].ToString().Split(' ').Last();
 
         // 使用服务定位器来获取 IJwtService

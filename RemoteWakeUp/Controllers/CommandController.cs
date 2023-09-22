@@ -1,6 +1,9 @@
 ﻿using System.Net.NetworkInformation;
 using Microsoft.AspNetCore.Mvc;
+using RemoteWakeUp.Attribute;
 using RemoteWakeUp.Entity.Re;
+using RemoteWakeUp.Entity.Req;
+using RemoteWakeUp.Jwt;
 using RemoteWakeUp.Utils;
 
 namespace RemoteWakeUp.Controllers;
@@ -13,20 +16,52 @@ namespace RemoteWakeUp.Controllers;
 public class CommandController : ControllerBase
 {
     private readonly IConfiguration _configuration;
+    private readonly IJwtService _jwtService;
 
     /// <summary>
     /// 构造函数
     /// </summary>
     /// <param name="configuration"></param>
-    public CommandController(IConfiguration configuration)
+    /// <param name="jwtService"></param>
+    public CommandController(IConfiguration configuration, IJwtService jwtService)
     {
         _configuration = configuration;
+        _jwtService = jwtService;
+    }
+
+    /// <summary>
+    /// 登录
+    /// </summary>
+    /// <param name="data"></param>
+    /// <returns></returns>
+    [HttpPost("login")]
+    public async Task<IRe<object>> Login(Req.Login data)
+    {
+        if (data.Password == _configuration.GetSection("WakeUp:Password").Value)
+        {
+            return new Ok<object>()
+            {
+                Message = "登录成功",
+                Data = new
+                {
+                    Token = _jwtService.CreateTokenAsync("admin", "admin").Result
+                }
+            };
+        }
+        else
+        {
+            return new Error<object>()
+            {
+                Message = "密码错误",
+            };
+        }
     }
 
     /// <summary>
     /// 唤醒全部设备
     /// </summary>
     /// <returns></returns>
+    [Auth]
     [HttpGet("wakeUp")]
     public async Task<IRe<object>> WakeUp()
     {
@@ -51,6 +86,7 @@ public class CommandController : ControllerBase
     /// </summary>
     /// <param name="name"></param>
     /// <returns></returns>
+    [Auth]
     [HttpGet("wakeUpByName/{name}")]
     public async Task<IRe<object>> WakeUpByName(string name)
     {
@@ -85,6 +121,7 @@ public class CommandController : ControllerBase
     /// <param name="mac"></param>
     /// <param name="subnetBroadcastAddress">子网的广播地址,为空则255.255.255.255广播</param>
     /// <returns></returns>
+    [Auth]
     [HttpGet("wakeUp/{mac}")]
     public async Task<IRe<object>> WakeUp(string mac, string? subnetBroadcastAddress)
     {
@@ -102,6 +139,7 @@ public class CommandController : ControllerBase
     /// 获取全部设备的在线状态
     /// </summary>
     /// <returns></returns>
+    [Auth]
     [HttpGet("isOnline")]
     public async Task<IRe<object>> IsOnline()
     {
@@ -134,6 +172,7 @@ public class CommandController : ControllerBase
     /// </summary>
     /// <param name="name"></param>
     /// <returns></returns>
+    [Auth]
     [HttpGet("isOnlineByName/{name}")]
     public async Task<IRe<object>> IsOnlineByName(string name)
     {
@@ -179,6 +218,7 @@ public class CommandController : ControllerBase
     /// </summary>
     /// <param name="ip"></param>
     /// <returns></returns>
+    [Auth]
     [HttpGet("isOnline/{ip}")]
     public async Task<IRe<object>> IsOnline(string ip)
     {

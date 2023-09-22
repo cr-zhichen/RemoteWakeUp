@@ -84,7 +84,13 @@ dotnet run --project RemoteWakeUp/RemoteWakeUp.csproj
 
 ## API 🌐
 
-1. **WOL 功能 (Wake On Lan)：**
+1. **登录**
+    - `POST /api/command/login`
+    - **功能**：登录并获取 JWT 令牌。
+    - **参数**：`password` - 密码。
+    - **返回值**：JWT 令牌。
+
+2. **WOL 功能 (Wake On Lan)：**
 
     - `GET /api/command/wakeUp`
         - **功能**：发送 WOL 数据包到配置文件中指定的所有 MAC 地址。
@@ -95,14 +101,14 @@ dotnet run --project RemoteWakeUp/RemoteWakeUp.csproj
         - **参数**：`name` - 设备名称。
         - **返回值**：发送成功的消息和相关设备信息或未找到设备的消息。
 
-    - `GET /api/wakeUp/{mac}?subnetBroadcastAddress={subnetBroadcastAddress}`
+    - `GET /api/Command/wakeUp/{mac}?subnetBroadcastAddress={subnetBroadcastAddress}`
         - **功能**：根据传入的 MAC 地址唤醒设备。
         - **参数**：
             - `mac` - MAC 地址。
             - `subnetBroadcastAddress` - 子网的广播地址。如果为空，默认为255.255.255.255。
         - **返回值**：发送成功的消息、代码为0，以及指定的 MAC 地址。
 
-2. **在线状态检查功能：**
+3. **在线状态检查功能：**
 
     - `GET /api/command/isOnline`
         - **功能**：获取配置文件中所有设备的在线状态。
@@ -120,7 +126,8 @@ dotnet run --project RemoteWakeUp/RemoteWakeUp.csproj
 
 ## 配置 ⚙️
 
-您可以在 `appsettings.json` 中修改配置。例如，您可以添加或删除 MAC 地址，以控制哪些设备可以被唤醒。
+您可以在 `appsettings.json` 中修改配置。例如，您可以添加或删除 MAC 地址，以控制哪些设备可以被唤醒。  
+若`WakeUp__Password`为空，则不需要登录即可使用唤醒功能。
 
 ```json
 {
@@ -146,7 +153,8 @@ dotnet run --project RemoteWakeUp/RemoteWakeUp.csproj
   },
   "IsUseSwagger": true,
   "WakeUp": {
-    "SubnetBroadcastAddress": "255.255.255.255",
+    "Password": "",
+    "SubnetBroadcastAddress": "192.168.2.255",
     "MacList": [
       {
         "Name": "台式机",
@@ -162,7 +170,8 @@ dotnet run --project RemoteWakeUp/RemoteWakeUp.csproj
 
 ```bash
 docker run -d --restart=always \
--e "IsUseSwagger"=true \
+-e "IsUseSwagger=true" \
+-e "WakeUp__Password=123456" \
 -e "WakeUp__MacList__0__Name=台式机" \
 -e "WakeUp__MacList__0__IP=192.168.2.3" \
 -e "WakeUp__MacList__0__MAC=74:56:3C:7A:6F:70" \
@@ -178,7 +187,8 @@ ccrui/remotewakeup:latest
 
 ```bash
 docker run -d --restart=always \
--e "IsUseSwagger"=true \
+-e "IsUseSwagger=true" \
+-e "WakeUp__Password=123456" \
 -e "WakeUp__MacList__0__Name=台式机" \
 -e "WakeUp__MacList__0__IP=192.168.2.3" \
 -e "WakeUp__MacList__0__MAC=74:56:3C:7A:6F:70" \
