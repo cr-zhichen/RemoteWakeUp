@@ -14,3 +14,8 @@ export function getToken() {
         return token;
     }
 }
+
+//从本地删除Token
+export function removeToken() {
+    localStorage.removeItem("token");
+}

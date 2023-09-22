@@ -1,8 +1,11 @@
 <script setup>
-import {useGoToNotFound} from "@/router/goToRouter.js";
+import {useGoToLogin} from "@/router/goToRouter.js";
 import {ref} from "@vue/reactivity";
 import {getThemeIcon, toggleTheme} from "@/tool/themeChange.js";
 import {getLanguageName, toggleLanguage} from "@/tool/languageChange.js";
+import {removeToken} from "@/tool/operateLocalStorage.js";
+import {WakeAllDevice} from "@/tool/httpRequest.js";
+import {ElMessage} from "element-plus";
 
 const theme = ref(getThemeIcon());
 const swatchTheme = () => {
@@ -16,16 +19,32 @@ const switchLanguage = () => {
     language.value = getLanguageName();
 }
 
-const goToNotFound = useGoToNotFound();
+const goToLogin = useGoToLogin();
+
+// 退出登录
+const logout = () => {
+    removeToken();
+    goToLogin();
+}
+
+//远程唤醒全部设备
+const wakeAll = () => {
+    WakeAllDevice((data) => {
+        ElMessage.success('唤醒成功');
+    }, (data) => {
+        ElMessage.error(data);
+    });
+}
 
 </script>
 
 <template>
     <div id="homePage">
         <h1>{{ $t('homePage.title') }}</h1>
-        <el-button @click="swatchTheme" :icon="theme">{{ $t('homePage.swatchThemeButton') }}</el-button>
-        <el-button @click="goToNotFound">{{ $t('homePage.notFoundButton') }}</el-button>
-        <el-button @click="switchLanguage">{{ language }}</el-button>
+        <!--        <el-button @click="swatchTheme" :icon="theme">{{ $t('homePage.swatchThemeButton') }}</el-button>-->
+        <!--        <el-button @click="switchLanguage">{{ language }}</el-button>-->
+        <el-button @click="wakeAll">全部唤醒</el-button>
+        <el-button @click="logout">{{ $t('homePage.logoutButton') }}</el-button>
     </div>
 </template>
 

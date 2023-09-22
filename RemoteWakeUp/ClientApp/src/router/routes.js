@@ -5,6 +5,12 @@ const routes = [
         title: '首页',
         component: () => import('@/page/HomePage.vue'), //.vue不能省略
     },
+    {
+        path: '/login',
+        name: 'login',
+        title: '登录',
+        component: () => import('@/page/LoginPage.vue'), //.vue不能省略
+    },
     //其他路由跳转到NotFound
     {
         path: '/:pathMatch(.*)',

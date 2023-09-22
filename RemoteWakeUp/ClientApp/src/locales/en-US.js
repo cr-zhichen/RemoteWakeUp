@@ -1,16 +1,23 @@
 export default {
     theme: {
-        light: 'light theme',
-        dark: 'dark theme',
-        auto: 'auto theme',
+        light: 'Light Theme',
+        dark: 'Dark Theme',
+        auto: 'Auto Theme',
     },
     homePage: {
         title: 'Home Page',
         notFoundButton: '404 Page',
-        swatchThemeButton: 'Swatch Theme',
+        swatchThemeButton: 'Switch Theme',
+        logoutButton: 'Log Out',
+    },
+    loginPage: {
+        title: 'Login',
+        usernamePlaceholder: 'Please Enter Username',
+        passwordPlaceholder: 'Please Enter Password',
+        loginButton: 'Log In',
     },
     notFoundPage: {
-        title: 'Not Found Page',
-        goHomeButton: 'Go Home',
+        title: 'Page Not Found',
+        goHomeButton: 'Return to Home Page',
     }
 }

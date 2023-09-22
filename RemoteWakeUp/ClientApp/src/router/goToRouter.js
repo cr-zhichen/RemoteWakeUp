@@ -10,6 +10,15 @@ export function useGoToHome() {
     };
 }
 
+//跳转到登录页
+export function useGoToLogin() {
+    const router = useRouter();
+
+    return function () {
+        router.push("/login");
+    };
+}
+
 //跳转到404页面
 export function useGoToNotFound() {
     const router = useRouter();

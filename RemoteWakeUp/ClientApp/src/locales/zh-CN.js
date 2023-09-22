@@ -8,6 +8,13 @@ export default {
         title: '主页',
         notFoundButton: '404页面',
         swatchThemeButton: '切换主题',
+        logoutButton: '退出登录',
+    },
+    loginPage: {
+        title: '登录',
+        usernamePlaceholder: '请输入用户名',
+        passwordPlaceholder: '请输入密码',
+        loginButton: '登录',
     },
     notFoundPage: {
         title: '未找到页面',

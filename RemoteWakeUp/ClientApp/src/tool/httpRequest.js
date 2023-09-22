@@ -1,29 +1,35 @@
 //axios
 import axios from 'axios';
-import {setHistoryDetail, setHistoryList, setRole, setToken} from "./operateLocalStorage.js";
+import {getToken, removeToken, setToken} from "./operateLocalStorage.js";
+import {ElLoading} from "element-plus";
+import router from "@/router/index.js";
 
 const config =
     {
-        "Url": "https://xxx.xxx.xxx",
-        "Test": "/api/test",
+        "Url": window.location.origin,
+        // "Url": "http://localhost:9000",//本地测试使用 编译时请注释
+        "Login": "/api/Command/login",
+        "WakeUp": "/api/Command/wakeUp",
     }
 
-//示例调用Get方法
-export function GetTest() {
-    GetHelp(config.Url + config.Test, (data) => {
+//登录
+export function Login(data, ok, err) {
+    PostHelp(config.Url + config.Login, data, (data) => {
+        setToken(data.data.token);
         console.log(data);
+        ok(data);
     }, (error) => {
-        console.log(error);
+        err(error);
     });
 }
 
-//示例调用Post方法
-export function PostTest() {
-    PostHelp(config.Url + config.Test, {}, (data) => {
-        console.log(data);
+//唤醒全部设备
+export function WakeAllDevice(ok, err) {
+    GetHelp(config.Url + config.WakeUp, (data) => {
+        ok(data);
     }, (error) => {
-        console.log(error);
-    });
+        err(error);
+    }, getToken());
 }
 
 //Get请求
@@ -43,16 +49,24 @@ export async function GetHelp(url, ok, err, token = '') {
 
         if (response.status !== 200) {
             err && err(response.statusText);
+        } else {
+            if (response.data.code !== 0) {
+                err && err(response.data.message);
+                if (response.data.code === 1) {
+                    removeToken();
+                    router.push("/login");
+                }
+            } else {
+                ok(response.data);
+            }
         }
-
-        ok(response.data);
     } catch (error) {
         err && err(error.message);
     }
     loading.close();
 }
 
-//Post请求
+//Post请求 ok返回json数据 err返回错误信息
 export async function PostHelp(url, data, ok, err, token = '') {
     const loading = ElLoading.service({
         lock: true,
@@ -70,8 +84,17 @@ export async function PostHelp(url, data, ok, err, token = '') {
 
         if (response.status !== 200) {
             err && err(response.statusText);
+        } else {
+            if (response.data.code !== 0) {
+                err && err(response.data.message);
+                if (response.data.code === 1) {
+                    removeToken();
+                    router.push("/login");
+                }
+            } else {
+                ok(response.data);
+            }
         }
-        ok(response.data);
     } catch (error) {
         err && err(error.message);
     }
