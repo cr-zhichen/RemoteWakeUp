@@ -6,81 +6,93 @@ using Microsoft.IdentityModel.Tokens;
 using Microsoft.OpenApi.Models;
 using RemoteWakeUp.Filter;
 using RemoteWakeUp.Jwt;
+using RemoteWakeUp.Static;
 using RemoteWakeUp.WS;
+using Microsoft.AspNetCore.HttpOverrides;
+using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.FileProviders;
+using Serilog;
 
-// 获取当前运行的程序集的位置目录
-var baseDirectory = Path.GetDirectoryName(Assembly.GetEntryAssembly()!.Location);
+#region 应用构建器与配置
 
-// 使用WebApplicationOptions创建一个新的Web应用构造器，并读取配置文件
+var baseDirectory = Path.GetDirectoryName(AppContext.BaseDirectory);
+
+// 配置Serilog
+Log.Logger = new LoggerConfiguration()
+    .WriteTo.Console()
+    .WriteTo.File(Path.Combine(baseDirectory, "Logs/AllLogs/Log.txt"), rollingInterval: RollingInterval.Day)
+    .WriteTo.File(Path.Combine(baseDirectory, "Logs/Information/Log-Information-.txt"),
+        restrictedToMinimumLevel: Serilog.Events.LogEventLevel.Information, rollingInterval: RollingInterval.Day)
+    .WriteTo.File(Path.Combine(baseDirectory, "Logs/Warning/Log-Warning-.txt"),
+        restrictedToMinimumLevel: Serilog.Events.LogEventLevel.Warning, rollingInterval: RollingInterval.Day)
+    .WriteTo.File(Path.Combine(baseDirectory, "Logs/Error/Log-Error-.txt"),
+        restrictedToMinimumLevel: Serilog.Events.LogEventLevel.Error, rollingInterval: RollingInterval.Day)
+    .CreateLogger();
+
 var builder = WebApplication.CreateBuilder(new WebApplicationOptions
 {
-    // 设置内容根路径为当前程序集的位置
     Args = args,
     ContentRootPath = baseDirectory,
 });
 
-// 允许所有域名访问
+// 使用Serilog作为日志提供程序
+builder.Host.UseSerilog();
+
+#endregion
+
+#region 跨域设置配置
+
 builder.Services.AddCors(options =>
 {
     options.AddPolicy("AllowAll",
         corsPolicyBuilder => corsPolicyBuilder.AllowAnyOrigin().AllowAnyMethod().AllowAnyHeader());
 });
 
-// 向服务集合添加MVC控制器服务
+#endregion
+
+#region MVC配置及过滤器
+
 builder.Services.AddControllers();
-// 向服务集合添加API终端点的API资源浏览服务
 builder.Services.AddEndpointsApiExplorer();
-// 向服务集合添加Swagger生成服务
-builder.Services.AddSwaggerGen();
 
-//注入服务
-builder.Services.AddHttpContextAccessor();
-
-#region 全局异常处理
-
-//全局异常处理
 builder.Services.AddControllers(options =>
 {
     options.Filters.Add<CustomerExceptionFilter>();
-    //添加过滤器
     options.Filters.Add(typeof(ModelValidateActionFilterAttribute));
 });
 
-//关闭默认模型验证
 builder.Services.Configure<ApiBehaviorOptions>(opt => opt.SuppressModelStateInvalidFilter = true);
 
 #endregion
 
-#region 配置JWT
+#region JWT配置
 
-var section = builder.Configuration.GetSection("TokenOptions"); // 获取TokenOptions配置
+var section = builder.Configuration.GetSection("TokenOptions");
 var tokenOptions = section.Get<TokenOptions>();
-
-builder.Services.AddTransient<IJwtService, JwtService>(); // 注册Jwt服务到容器
-builder.Services.Configure<TokenOptions>(section); // 注入IOptions需要这个
+builder.Services.AddTransient<IJwtService, JwtService>();
+builder.Services.Configure<TokenOptions>(section);
 builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
     .AddJwtBearer(options =>
     {
         options.TokenValidationParameters = new TokenValidationParameters
         {
-            ValidateIssuer = true, //是否在令牌期间验证签发者
-            ValidateAudience = true, //是否验证接收者
-            ValidateLifetime = true, //是否验证失效时间
-            ValidateIssuerSigningKey = true, //是否验证签名
-            ValidAudience = tokenOptions.Audience, //接收者
-            ValidIssuer = tokenOptions.Issuer, //签发者，签发的Token的人
+            ValidateIssuer = true,
+            ValidateAudience = true,
+            ValidateLifetime = true,
+            ValidateIssuerSigningKey = true,
+            ValidAudience = tokenOptions.Audience,
+            ValidIssuer = tokenOptions.Issuer,
             IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(tokenOptions.SecretKey))
         };
     });
 
 #endregion
 
-#region 配置swagger
+#region Swagger配置
 
 builder.Services.AddSwaggerGen(c =>
 {
-    c.SwaggerDoc("v1",
-        new() { Title = "RemoteWakeUp", Version = "v1", Description = "" });
+    c.SwaggerDoc("v1", new() { Title = "FlashDotNet", Version = "v1" });
     c.AddSecurityDefinition("Bearer", new OpenApiSecurityScheme
     {
         Description = "使用 Bearer 方案的 JWT 授权标头。",
@@ -106,33 +118,47 @@ builder.Services.AddSwaggerGen(c =>
     });
 });
 
-//使用完整的类型名称作为架构 ID
 builder.Services.AddSwaggerGen(c => { c.CustomSchemaIds(x => x.FullName); });
 
 #endregion
 
-builder.Services.AddTransient<WebSocketController>();
+#region 依赖注入
 
-// 构建Web应用程序
+builder.Services.AddHttpContextAccessor();
+builder.Services.AddTransient<WebSocketController>();
+builder.Services.Configure<ForwardedHeadersOptions>(options =>
+{
+    options.ForwardedHeaders = ForwardedHeaders.XForwardedFor | ForwardedHeaders.XForwardedProto;
+    // 如果在开发环境中使用了代理服务器，需要添加下面的代码以防止环回网络地址的错误
+    // options.KnownNetworks.Clear();
+    // options.KnownProxies.Clear();
+});
+
+#endregion
+
 var app = builder.Build();
 
-var isUseSwagger = builder.Configuration.GetSection("IsUseSwagger").Get<bool>();
-if (isUseSwagger)
-{
-    // 启用Swagger中间件以为JSON终端点生成Swagger文档
-    app.UseSwagger();
+#region Swagger中间件配置
 
-    // 启用Swagger UI
+if (app.Environment.IsDevelopment())
+{
+    app.UseSwagger();
     app.UseSwaggerUI();
 }
 
-//JWT认证
+#endregion
+
+#region 基础中间件配置
+
+app.UseRouting();
+app.UseCors("AllowAll");
 app.UseAuthentication();
 app.UseAuthorization();
 
-#region WebSocket中间件
+#endregion
 
-// 设置2分钟的心跳检测
+#region WebSocket配置
+
 var webSocketOptions = new WebSocketOptions
 {
     KeepAliveInterval = TimeSpan.FromMinutes(2)
@@ -162,23 +188,42 @@ app.Use(async (context, next) =>
 
 #endregion
 
+#region 控制器与端点配置
 
-// 将控制器路由映射到MVC中间件
 app.MapControllers();
 
-app.UseRouting();
-if (isUseSwagger)
+app.UseEndpoints(endpoints =>
 {
-    // 配置端点
-    app.UseEndpoints(endpoints =>
+    endpoints.MapGet("/", httpContext =>
     {
-        endpoints.MapGet("/", httpContext =>
-        {
-            httpContext.Response.Redirect("/swagger");
-            return Task.CompletedTask;
-        });
+        httpContext.Response.Redirect("/index.html");
+        return Task.CompletedTask;
     });
+});
+
+#endregion
+
+#region 静态文件配置
+
+app.UseStaticFiles();
+
+var resourcesPath = Path.Combine(Directory.GetCurrentDirectory(), "Resources");
+
+if (!Directory.Exists(resourcesPath))
+{
+    Directory.CreateDirectory(resourcesPath);
 }
 
-// 运行应用
+app.UseStaticFiles(new StaticFileOptions
+{
+    FileProvider = new PhysicalFileProvider(resourcesPath),
+    RequestPath = "/resources",
+    OnPrepareResponse = ctx => { ctx.Context.Response.Headers.Add("Access-Control-Allow-Origin", "*"); }
+});
+
+#endregion
+
 app.Run();
+
+// 关闭和刷新日志
+Log.CloseAndFlush();
