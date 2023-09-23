@@ -37,7 +37,6 @@ public class CommandController : ControllerBase
     [HttpPost("login")]
     public async Task<IRe<object>> Login(Req.Login data)
     {
-
         if (_configuration.GetSection("WakeUp:Password").Value.Length == 0)
         {
             return new Ok<object>()
@@ -49,7 +48,7 @@ public class CommandController : ControllerBase
                 }
             };
         }
-        
+
         if (data.Password == _configuration.GetSection("WakeUp:Password").Value)
         {
             return new Ok<object>()
@@ -81,6 +80,24 @@ public class CommandController : ControllerBase
         return new Ok<object>()
         {
             Message = "Token验证成功"
+        };
+    }
+
+    /// <summary>
+    /// 获取可被唤醒的设备列表
+    /// </summary>
+    /// <returns></returns>
+    [Auth]
+    [HttpGet("getWakeUpList")]
+    public async Task<IRe<object>> GetWakeUpList()
+    {
+        List<WakeUpDevice> devices = _configuration.GetSection("WakeUp:MacList").Get<List<WakeUpDevice>>();
+
+        return new Ok<object>()
+        {
+            Message = "获取可被唤醒的设备列表成功",
+            Code = 0,
+            Data = devices
         };
     }
 

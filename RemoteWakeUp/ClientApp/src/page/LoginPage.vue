@@ -36,6 +36,7 @@ const submit = () => {
             type="password"
             :placeholder="$t('loginPage.passwordPlaceholder')"
             show-password
+            @keyup.enter="submit"
         />
         <el-button
             class="password-button"
