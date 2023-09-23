@@ -140,7 +140,8 @@ var app = builder.Build();
 
 #region Swagger中间件配置
 
-if (app.Environment.IsDevelopment())
+var isUseSwagger = builder.Configuration.GetSection("IsUseSwagger").Get<bool>();
+if (isUseSwagger)
 {
     app.UseSwagger();
     app.UseSwaggerUI();
