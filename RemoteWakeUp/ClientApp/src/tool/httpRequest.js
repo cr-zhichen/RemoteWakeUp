@@ -1,7 +1,7 @@
 //axios
 import axios from 'axios';
 import {getToken, removeToken, setToken} from "./operateLocalStorage.js";
-import {ElLoading} from "element-plus";
+import {ElLoading, ElMessage} from "element-plus";
 import router from "@/router/index.js";
 
 const config =
@@ -10,6 +10,7 @@ const config =
         // "Url": "http://localhost:9000",//本地测试使用 编译时请注释
         "Login": "/api/Command/login",
         "WakeUp": "/api/Command/wakeUp",
+        "Test": "/api/Command/test",
     }
 
 //登录
@@ -21,6 +22,18 @@ export function Login(data, ok, err) {
     }, (error) => {
         err(error);
     });
+}
+
+//验证token
+export function Test() {
+    GetHelp(config.Url + config.Test, (data) => {
+        const isAuthenticated = !!getToken();
+        if (!isAuthenticated) {
+            setToken("No verification required")
+            router.push("/");
+        }
+    }, (error) => {
+    }, getToken());
 }
 
 //唤醒全部设备

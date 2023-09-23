@@ -43,7 +43,7 @@ const wakeAll = () => {
         <h1>{{ $t('homePage.title') }}</h1>
         <!--        <el-button @click="swatchTheme" :icon="theme">{{ $t('homePage.swatchThemeButton') }}</el-button>-->
         <!--        <el-button @click="switchLanguage">{{ language }}</el-button>-->
-        <el-button @click="wakeAll">全部唤醒</el-button>
+        <el-button @click="wakeAll">{{ $t('homePage.wakeAllButton') }}</el-button>
         <el-button @click="logout">{{ $t('homePage.logoutButton') }}</el-button>
     </div>
 </template>

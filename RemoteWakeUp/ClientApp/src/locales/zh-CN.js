@@ -9,6 +9,7 @@ export default {
         notFoundButton: '404页面',
         swatchThemeButton: '切换主题',
         logoutButton: '退出登录',
+        wakeAllButton: '全部唤醒',
     },
     loginPage: {
         title: '登录',

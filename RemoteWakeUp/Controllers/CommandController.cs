@@ -37,6 +37,19 @@ public class CommandController : ControllerBase
     [HttpPost("login")]
     public async Task<IRe<object>> Login(Req.Login data)
     {
+
+        if (_configuration.GetSection("WakeUp:Password").Value.Length == 0)
+        {
+            return new Ok<object>()
+            {
+                Message = "登录成功",
+                Data = new
+                {
+                    Token = "No verification required"
+                }
+            };
+        }
+        
         if (data.Password == _configuration.GetSection("WakeUp:Password").Value)
         {
             return new Ok<object>()
@@ -55,6 +68,20 @@ public class CommandController : ControllerBase
                 Message = "密码错误",
             };
         }
+    }
+
+    /// <summary>
+    /// Token验证
+    /// </summary>
+    /// <returns></returns>
+    [Auth]
+    [HttpGet("test")]
+    public async Task<IRe<object>> Test()
+    {
+        return new Ok<object>()
+        {
+            Message = "Token验证成功"
+        };
     }
 
     /// <summary>

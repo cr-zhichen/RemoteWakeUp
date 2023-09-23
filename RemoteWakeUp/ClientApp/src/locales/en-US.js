@@ -9,6 +9,7 @@ export default {
         notFoundButton: '404 Page',
         swatchThemeButton: 'Switch Theme',
         logoutButton: 'Log Out',
+        wakeAllButton: 'Wake All',
     },
     loginPage: {
         title: 'Login',
