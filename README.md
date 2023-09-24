@@ -82,48 +82,6 @@ dotnet run --project RemoteWakeUp/RemoteWakeUp.csproj
 
 </details>
 
-## API 🌐
-
-1. **登录**
-    - `POST /api/command/login`
-    - **功能**：登录并获取 JWT 令牌。
-    - **参数**：`password` - 密码。
-    - **返回值**：JWT 令牌。
-
-2. **WOL 功能 (Wake On Lan)：**
-
-    - `GET /api/command/wakeUp`
-        - **功能**：发送 WOL 数据包到配置文件中指定的所有 MAC 地址。
-        - **返回值**：发送成功的消息和相关设备列表。
-
-    - `GET /api/command/wakeUpByName/{name}`
-        - **功能**：根据提供的设备名发送 WOL 数据包。
-        - **参数**：`name` - 设备名称。
-        - **返回值**：发送成功的消息和相关设备信息或未找到设备的消息。
-
-    - `GET /api/Command/wakeUp/{mac}?subnetBroadcastAddress={subnetBroadcastAddress}`
-        - **功能**：根据传入的 MAC 地址唤醒设备。
-        - **参数**：
-            - `mac` - MAC 地址。
-            - `subnetBroadcastAddress` - 子网的广播地址。如果为空，默认为255.255.255.255。
-        - **返回值**：发送成功的消息、代码为0，以及指定的 MAC 地址。
-
-3. **在线状态检查功能：**
-
-    - `GET /api/command/isOnline`
-        - **功能**：获取配置文件中所有设备的在线状态。
-        - **返回值**：设备在线状态的消息和相关设备列表。
-
-    - `GET /api/command/isOnlineByName/{name}`
-        - **功能**：根据提供的设备名检查设备是否在线。
-        - **参数**：`name` - 设备名称。
-        - **返回值**：设备的在线状态消息和相关设备信息或未找到设备的消息。
-
-    - `GET /api/command/isOnline/{ip}`
-        - **功能**：检查指定的 IP 地址是否在线。
-        - **参数**：`ip` - IP 地址。
-        - **返回值**：IP 地址的在线状态消息。
-
 ## 配置 ⚙️
 
 您可以在 `appsettings.json` 中修改配置。例如，您可以添加或删除 MAC 地址，以控制哪些设备可以被唤醒。  
