@@ -52,7 +52,6 @@ const submit = () => {
 
 #login {
     width: 30%;
-    height: 30%;
     margin: auto;
     backdrop-filter: blur(2px);
     border-radius: 10px;
@@ -68,8 +67,7 @@ const submit = () => {
 
 @media screen and (max-width: 768px) {
     #login {
-        width: 80%;
-        height: 80%;
+        width: 60%;
     }
 }
 
