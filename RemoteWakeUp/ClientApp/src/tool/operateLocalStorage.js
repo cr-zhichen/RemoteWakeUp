@@ -19,3 +19,23 @@ export function getToken() {
 export function removeToken() {
     localStorage.removeItem("token");
 }
+
+//将RecaptchaClientKey存储到本地
+export function setRecaptchaClientKey(RecaptchaClientKey) {
+    localStorage.setItem("RecaptchaClientKey", RecaptchaClientKey);
+}
+
+//从本地存储获取RecaptchaClientKey
+export function getRecaptchaClientKey() {
+    let RecaptchaClientKey = localStorage.getItem("RecaptchaClientKey");
+    if (!RecaptchaClientKey) {
+        return null;
+    } else {
+        return RecaptchaClientKey;
+    }
+}
+
+//从本地删除RecaptchaClientKey
+export function removeRecaptchaClientKey() {
+    localStorage.removeItem("RecaptchaClientKey");
+}

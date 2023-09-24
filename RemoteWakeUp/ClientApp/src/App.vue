@@ -1,9 +1,20 @@
 <script setup>
 
 import {globalState} from "./global/globalState.js";
-import {VerifyToken} from "@/tool/httpRequest.js";
+import {GetRecaptchaClient, VerifyToken} from "@/tool/httpRequest.js";
+import {ElMessage} from "element-plus";
+import {getRecaptchaClientKey, removeRecaptchaClientKey} from "@/tool/operateLocalStorage.js";
+import {onMounted} from "vue";
 
 VerifyToken();
+removeRecaptchaClientKey();
+GetRecaptchaClient((data) => {
+    // 动态设置reCAPTCHA脚本的src属性
+    const scriptTag = document.createElement('script');
+    scriptTag.src = `https://www.recaptcha.net/recaptcha/api.js?render=` + data.data;
+    document.head.appendChild(scriptTag);
+}, (data) => {
+});
 
 </script>
 

@@ -4,6 +4,7 @@ import {ElInput, ElButton, ElMessage} from 'element-plus'
 import {Login} from "@/tool/httpRequest.js";
 import {useGoToHome} from "@/router/goToRouter.js";
 import {useI18n} from "vue-i18n";
+import {getRecaptchaClientKey} from "@/tool/operateLocalStorage.js";
 
 
 const {t} = useI18n();
@@ -12,17 +13,39 @@ const goToHome = useGoToHome();
 
 const password = ref('')
 const submit = () => {
-    if (password.value) {
-        Login({
-            password: password.value
-        }, (data) => {
-            ElMessage.success('登录成功');
-            goToHome();
-        }, (data) => {
-            ElMessage.error(data);
-        });
+
+    if (getRecaptchaClientKey() === null) {
+        if (password.value) {
+            Login({
+                password: password.value,
+                recaptchaResponse: "null"
+            }, (data) => {
+                ElMessage.success('登录成功');
+                goToHome();
+            }, (data) => {
+                ElMessage.error(data);
+            });
+        } else {
+            ElMessage.error('请输入密码');
+        }
     } else {
-        ElMessage.error('请输入密码');
+        grecaptcha.ready(function () {
+            grecaptcha.execute(getRecaptchaClientKey(), {action: 'submit'}).then(function (token) {
+                if (password.value) {
+                    Login({
+                        password: password.value,
+                        recaptchaResponse: token
+                    }, (data) => {
+                        ElMessage.success('登录成功');
+                        goToHome();
+                    }, (data) => {
+                        ElMessage.error(data);
+                    });
+                } else {
+                    ElMessage.error('请输入密码');
+                }
+            });
+        });
     }
 }
 </script>

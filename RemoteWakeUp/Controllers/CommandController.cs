@@ -1,5 +1,6 @@
 ﻿using System.Net.NetworkInformation;
 using Microsoft.AspNetCore.Mvc;
+using Newtonsoft.Json;
 using RemoteWakeUp.Attribute;
 using RemoteWakeUp.Entity.Re;
 using RemoteWakeUp.Entity.Req;
@@ -30,6 +31,32 @@ public class CommandController : ControllerBase
     }
 
     /// <summary>
+    /// 获取reCAPTCHA:Client的值
+    /// </summary>
+    /// <returns></returns>
+    [HttpGet("getRecaptchaClient")]
+    public async Task<IRe<object>> GetRecaptchaClient()
+    {
+        var client = _configuration.GetSection("reCAPTCHA:Client").Value;
+
+        if (!string.IsNullOrEmpty(client))
+        {
+            return new Ok<object>()
+            {
+                Message = "获取reCAPTCHA:Client成功",
+                Data = client
+            };
+        }
+        else
+        {
+            return new Error<object>()
+            {
+                Message = "获取reCAPTCHA:Client失败",
+            };
+        }
+    }
+
+    /// <summary>
     /// 登录
     /// </summary>
     /// <param name="data"></param>
@@ -37,6 +64,36 @@ public class CommandController : ControllerBase
     [HttpPost("login")]
     public async Task<IRe<object>> Login(Req.Login data)
     {
+        var secretKey = _configuration.GetSection("reCAPTCHA:Server").Value;
+
+        if (!string.IsNullOrEmpty(secretKey))
+        {
+            var client = new HttpClient();
+            var response = await client.GetStringAsync(
+                $"https://recaptcha.net/recaptcha/api/siteverify?secret={secretKey}&response={data.RecaptchaResponse}");
+            var recaptchaResult = JsonConvert.DeserializeObject<RecaptchaResult>(response);
+
+            Console.WriteLine(
+                $"reCAPTCHA验证结果：{recaptchaResult.Success},验证分数：{recaptchaResult.Score},验证时间：{recaptchaResult.ChallengeTimestamp},验证主机：{recaptchaResult.Hostname},错误代码：{recaptchaResult.ErrorCodes}");
+
+            if (!recaptchaResult.Success)
+            {
+                return new Error<object>()
+                {
+                    Message = "reCAPTCHA验证失败",
+                };
+            }
+
+            if (recaptchaResult.Score < 0.5)
+            {
+                return new Error<object>()
+                {
+                    Message = "reCAPTCHA验证失败",
+                };
+            }
+        }
+
+
         if (_configuration.GetSection("WakeUp:Password").Value.Length == 0)
         {
             return new Ok<object>()
@@ -186,5 +243,21 @@ public class CommandController : ControllerBase
         public string Name { get; set; }
         public string IP { get; set; }
         public string MAC { get; set; }
+    }
+
+    /// <summary>
+    /// reCAPTCHA验证结果实体类
+    /// </summary>
+    public class RecaptchaResult
+    {
+        [JsonProperty("success")] public bool Success { get; set; }
+
+        [JsonProperty("score")] public float Score { get; set; }
+
+        [JsonProperty("challenge_ts")] public DateTime ChallengeTimestamp { get; set; }
+
+        [JsonProperty("hostname")] public string Hostname { get; set; }
+
+        [JsonProperty("error-codes")] public List<string> ErrorCodes { get; set; }
     }
 }

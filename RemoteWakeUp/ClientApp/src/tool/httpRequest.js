@@ -1,6 +1,6 @@
 //axios
 import axios from 'axios';
-import {getToken, removeToken, setToken} from "./operateLocalStorage.js";
+import {getToken, removeToken, setRecaptchaClientKey, setToken} from "./operateLocalStorage.js";
 import {ElLoading, ElMessage} from "element-plus";
 import router from "@/router/index.js";
 
@@ -8,12 +8,30 @@ const config =
     {
         "Url": window.location.origin,
         // "Url": "http://localhost:9000",//本地测试使用 编译时请注释
+        "GetRecaptchaClient": "/api/Command/getRecaptchaClient",
         "Login": "/api/Command/login",
         "VerifyToken": "/api/Command/verifyToken",
         "GetDevices": "/api/Command/getDevices",
         "WakeUp": "/api/Command/wakeUp",
         "IsOnline": "/api/Command/isOnline",
     }
+
+//获取RecaptchaClientKey
+export function GetRecaptchaClient(ok, err) {
+    const loading = ElLoading.service({
+        lock: true,
+        text: 'Loading',
+        background: 'rgba(0, 0, 0, 0.7)',
+    });
+    GetHelp(config.Url + config.GetRecaptchaClient, (data) => {
+        ok(data);
+        setRecaptchaClientKey(data.data);
+        loading.close();
+    }, (error) => {
+        err(error);
+        loading.close();
+    });
+}
 
 //登录
 export function Login(data, ok, err) {

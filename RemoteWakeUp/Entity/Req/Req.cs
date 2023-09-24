@@ -11,6 +11,8 @@ public class Req
         /// </summary>
         [Required]
         public string? Password { get; set; }
+        [Required]
+        public string RecaptchaResponse { get; set; }
     }
 
     public class WakeUp
