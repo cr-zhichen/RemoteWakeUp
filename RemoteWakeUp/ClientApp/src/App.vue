@@ -1,9 +1,9 @@
 <script setup>
 
 import {globalState} from "./global/globalState.js";
-import {Test} from "@/tool/httpRequest.js";
+import {VerifyToken} from "@/tool/httpRequest.js";
 
-Test();
+VerifyToken();
 
 </script>
 

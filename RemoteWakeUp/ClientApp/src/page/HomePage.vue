@@ -29,7 +29,7 @@ const logout = () => {
 
 //远程唤醒全部设备
 const wakeAll = () => {
-    WakeAllDevice((data) => {
+    WakeAllDevice({}, (data) => {
         ElMessage.success('唤醒成功');
     }, (data) => {
         ElMessage.error(data);

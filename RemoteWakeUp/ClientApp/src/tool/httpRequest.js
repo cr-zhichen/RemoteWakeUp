@@ -9,8 +9,10 @@ const config =
         "Url": window.location.origin,
         // "Url": "http://localhost:9000",//本地测试使用 编译时请注释
         "Login": "/api/Command/login",
+        "VerifyToken": "/api/Command/verifyToken",
+        "GetDevices": "/api/Command/getDevices",
         "WakeUp": "/api/Command/wakeUp",
-        "Test": "/api/Command/test",
+        "IsOnline": "/api/Command/isOnline",
     }
 
 //登录
@@ -25,8 +27,8 @@ export function Login(data, ok, err) {
 }
 
 //验证token
-export function Test() {
-    GetHelp(config.Url + config.Test, (data) => {
+export function VerifyToken() {
+    PostHelp(config.Url + config.VerifyToken, {}, (data) => {
         const isAuthenticated = !!getToken();
         if (!isAuthenticated) {
             setToken("No verification required")
@@ -36,9 +38,27 @@ export function Test() {
     }, getToken());
 }
 
+//获取可被唤醒的设备列表
+export function GetDevices(ok, err) {
+    GetHelp(config.Url + config.GetDevices, (data) => {
+        ok(data);
+    }, (error) => {
+        err(error);
+    }, getToken());
+}
+
 //唤醒全部设备
-export function WakeAllDevice(ok, err) {
-    GetHelp(config.Url + config.WakeUp, (data) => {
+export function WakeAllDevice(data, ok, err) {
+    PostHelp(config.Url + config.WakeUp, data, (data) => {
+        ok(data);
+    }, (error) => {
+        err(error);
+    }, getToken());
+}
+
+//根据ip判断设备是否在线
+export function IsOnline(ip, ok, err) {
+    GetHelp(config.Url + config.IsOnline + "/" + ip, (data) => {
         ok(data);
     }, (error) => {
         err(error);
