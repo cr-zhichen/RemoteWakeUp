@@ -170,24 +170,12 @@ public class CommandController : ControllerBase
         Response.Headers.Add("Cache-Control", "no-store, no-cache, must-revalidate, proxy-revalidate");
         Ping ping = new Ping();
         PingReply pingReply = ping.Send(ip);
-        if (pingReply.Status == IPStatus.Success)
+
+        return new Ok<object>()
         {
-            return new Ok<object>()
-            {
-                Message = "在线",
-                Code = 0,
-                Data = ip
-            };
-        }
-        else
-        {
-            return new Ok<object>()
-            {
-                Message = "离线",
-                Code = 0,
-                Data = ip
-            };
-        }
+            Message = "获取设备在线状态成功",
+            Data = (pingReply.Status == IPStatus.Success)
+        };
     }
 
     /// <summary>

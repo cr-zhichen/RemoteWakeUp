@@ -17,61 +17,100 @@ const config =
 
 //登录
 export function Login(data, ok, err) {
+    const loading = ElLoading.service({
+        lock: true,
+        text: 'Loading',
+        background: 'rgba(0, 0, 0, 0.7)',
+    });
     PostHelp(config.Url + config.Login, data, (data) => {
         setToken(data.data.token);
         console.log(data);
         ok(data);
+        loading.close();
     }, (error) => {
         err(error);
+        loading.close();
     });
 }
 
 //验证token
 export function VerifyToken() {
+    const loading = ElLoading.service({
+        lock: true,
+        text: 'Loading',
+        background: 'rgba(0, 0, 0, 0.7)',
+    });
     PostHelp(config.Url + config.VerifyToken, {}, (data) => {
         const isAuthenticated = !!getToken();
         if (!isAuthenticated) {
             setToken("No verification required")
             router.push("/");
         }
+        loading.close();
     }, (error) => {
+        loading.close();
     }, getToken());
 }
 
 //获取可被唤醒的设备列表
 export function GetDevices(ok, err) {
+    const loading = ElLoading.service({
+        lock: true,
+        text: 'Loading',
+        background: 'rgba(0, 0, 0, 0.7)',
+    });
     GetHelp(config.Url + config.GetDevices, (data) => {
         ok(data);
+        loading.close();
     }, (error) => {
         err(error);
+        loading.close();
+    }, getToken());
+}
+
+//唤醒单个设备
+export function WakeUpDevice(data, ok, err) {
+    const loading = ElLoading.service({
+        lock: true,
+        text: 'Loading',
+        background: 'rgba(0, 0, 0, 0.7)',
+    });
+    PostHelp(config.Url + config.WakeUp, data, (data) => {
+        ok(data);
+        loading.close();
+    }, (error) => {
+        err(error);
+        loading.close();
     }, getToken());
 }
 
 //唤醒全部设备
-export function WakeAllDevice(data, ok, err) {
-    PostHelp(config.Url + config.WakeUp, data, (data) => {
+export function WakeAllDevice(ok, err) {
+    const loading = ElLoading.service({
+        lock: true,
+        text: 'Loading',
+        background: 'rgba(0, 0, 0, 0.7)',
+    });
+    PostHelp(config.Url + config.WakeUp, {}, (data) => {
         ok(data);
+        loading.close();
     }, (error) => {
         err(error);
+        loading.close();
     }, getToken());
 }
 
 //根据ip判断设备是否在线
 export function IsOnline(ip, ok, err) {
-    GetHelp(config.Url + config.IsOnline + "/" + ip, (data) => {
+    GetHelp(config.Url + config.IsOnline + "?ip=" + ip, (data) => {
         ok(data);
     }, (error) => {
         err(error);
     }, getToken());
 }
 
-//Get请求
+//Get请求 ok返回json数据 err返回错误信息
 export async function GetHelp(url, ok, err, token = '') {
-    const loading = ElLoading.service({
-        lock: true,
-        text: 'Loading',
-        background: 'rgba(0, 0, 0, 0.7)',
-    })
     try {
         const response = await axios.get(url, {
             headers: {
@@ -96,17 +135,10 @@ export async function GetHelp(url, ok, err, token = '') {
     } catch (error) {
         err && err(error.message);
     }
-    loading.close();
 }
 
 //Post请求 ok返回json数据 err返回错误信息
 export async function PostHelp(url, data, ok, err, token = '') {
-    const loading = ElLoading.service({
-        lock: true,
-        text: 'Loading',
-        background: 'rgba(0, 0, 0, 0.7)',
-    })
-
     try {
         const response = await axios.post(url, data, {
             headers: {
@@ -131,6 +163,4 @@ export async function PostHelp(url, data, ok, err, token = '') {
     } catch (error) {
         err && err(error.message);
     }
-
-    loading.close();
 }

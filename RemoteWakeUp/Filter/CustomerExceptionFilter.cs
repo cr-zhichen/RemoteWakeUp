@@ -1,6 +1,7 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Filters;
 using Newtonsoft.Json;
+using Newtonsoft.Json.Serialization;
 using RemoteWakeUp.Entity.Enum;
 using RemoteWakeUp.Entity.Re;
 
@@ -45,7 +46,10 @@ public class CustomerExceptionFilter : IAsyncExceptionFilter
                 StatusCode = StatusCodes.Status200OK,
                 // 设置返回格式
                 ContentType = "application/json;charset=utf-8",
-                Content = JsonConvert.SerializeObject(result)
+                Content = JsonConvert.SerializeObject(result, new JsonSerializerSettings
+                {
+                    ContractResolver = new CamelCasePropertyNamesContractResolver()
+                })
             };
         }
 

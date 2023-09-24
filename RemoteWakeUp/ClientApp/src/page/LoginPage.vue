@@ -49,6 +49,30 @@ const submit = () => {
 </template>
 
 <style scoped>
+
+#login {
+    width: 30%;
+    height: 30%;
+    margin: auto;
+    backdrop-filter: blur(2px);
+    border-radius: 10px;
+    padding: 20px 50px 50px 50px;
+    border: 1px solid rgba(0, 0, 0, 0.01);
+    box-shadow: 0 0 10px rgba(0, 0, 0, 0.05);
+}
+
+.dark #login {
+    border: 1px solid rgba(255, 255, 255, 0.01);
+    box-shadow: 0 0 10px rgba(255, 255, 255, 0.03);
+}
+
+@media screen and (max-width: 768px) {
+    #login {
+        width: 80%;
+        height: 80%;
+    }
+}
+
 .password_input {
     margin-bottom: 15px;
 }

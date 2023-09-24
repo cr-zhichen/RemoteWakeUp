@@ -5,11 +5,23 @@ export default {
         auto: '自动主题',
     },
     homePage: {
-        title: '主页',
+        title: '设备列表',
         notFoundButton: '404页面',
         swatchThemeButton: '切换主题',
         logoutButton: '退出登录',
         wakeAllButton: '全部唤醒',
+        refreshAllButton: '刷新状态',
+        table: {
+            ip: 'IP地址',
+            mac: 'MAC地址',
+            name: '名称',
+            status: '状态',
+            action: '操作',
+            online: '在线',
+            offline: '离线',
+            obtaining: '获取中...',
+            wake: '唤醒',
+        }
     },
     loginPage: {
         title: '登录',

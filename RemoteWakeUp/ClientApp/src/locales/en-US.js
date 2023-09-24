@@ -5,20 +5,32 @@ export default {
         auto: 'Auto Theme',
     },
     homePage: {
-        title: 'Home Page',
+        title: 'Device List',
         notFoundButton: '404 Page',
         swatchThemeButton: 'Switch Theme',
         logoutButton: 'Log Out',
         wakeAllButton: 'Wake All',
+        refreshAllButton: 'Refresh Status',
+        table: {
+            ip: 'IP Address',
+            mac: 'MAC Address',
+            name: 'Name',
+            status: 'Status',
+            action: 'Action',
+            online: 'Online',
+            offline: 'Offline',
+            obtaining: 'Obtaining...',
+            wake: 'Wake',
+        }
     },
     loginPage: {
         title: 'Login',
-        usernamePlaceholder: 'Please Enter Username',
-        passwordPlaceholder: 'Please Enter Password',
-        loginButton: 'Log In',
+        usernamePlaceholder: 'Please enter username',
+        passwordPlaceholder: 'Please enter password',
+        loginButton: 'Login',
     },
     notFoundPage: {
         title: 'Page Not Found',
-        goHomeButton: 'Return to Home Page',
+        goHomeButton: 'Return to Home',
     }
 }
