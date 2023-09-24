@@ -6,8 +6,8 @@ import router from "@/router/index.js";
 
 const config =
     {
-        // "Url": window.location.origin,
-        "Url": "http://localhost:9000",//本地测试使用 编译时请注释
+        "Url": window.location.origin,
+        // "Url": "http://localhost:9000",//本地测试使用 编译时请注释
         "Login": "/api/Command/login",
         "WakeUp": "/api/Command/wakeUp",
         "Test": "/api/Command/test",
