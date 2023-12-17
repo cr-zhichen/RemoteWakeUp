@@ -31,6 +31,13 @@ jobs:
         password: ${{ secrets.GITHUB_TOKEN }}
       # 登录到GitHub Packages，需要设置secrets.GITHUB_TOKEN
 
+    - name: Prepare
+      id: prepare
+      run: |
+        REPO_NAME=$(echo "cr-zhichen/RemoteWakeUp" | tr '[:upper:]' '[:lower:]')
+        IMAGE_TAG=ghcr.io/${REPO_NAME}/remotewakeup:latest
+        echo "IMAGE_TAG=$IMAGE_TAG" >> $GITHUB_ENV
+
     - name: Build and push Docker image
       uses: docker/build-push-action@v2
       with:
@@ -38,5 +45,5 @@ jobs:
         file: ./Dockerfile
         platforms: linux/amd64,linux/arm64  # 定义构建平台
         push: true
-        tags: ghcr.io/${{ github.repository }}/remotewakeup:latest
+        tags: ${{ env.IMAGE_TAG }}
       # 构建并推送Docker镜像到GitHub Packages
