@@ -18,7 +18,7 @@
 1. 从 DockerHub 拉取最新的镜像：
 
 ```bash
-docker pull ccrui/remotewakeup:latest
+docker pull ghcr.io/cr-zhichen/remotewakeup:main
 ```
 
 2. 运行容器：
@@ -31,7 +31,7 @@ docker run -d --restart=always \
 -e "WakeUp__MacList__0__MAC=74:56:3C:7A:6F:70" \
 -e "WakeUp__SubnetBroadcastAddress=192.168.2.255" \
 --network host \
-ccrui/remotewakeup:latest
+ghcr.io/cr-zhichen/remotewakeup:main
 ```
 
 </details>
@@ -55,7 +55,7 @@ docker run -d --restart=always \
 -e "WakeUp__MacList__0__MAC=74:56:3C:7A:6F:70" \
 -e "WakeUp__SubnetBroadcastAddress=192.168.2.255" \
 --network host \
-ccrui/remotewakeup:latest
+ghcr.io/cr-zhichen/remotewakeup:main
 ```
 
 </details>
@@ -135,7 +135,7 @@ docker run -d --restart=always \
 -e "WakeUp__MacList__0__MAC=74:56:3C:7A:6F:70" \
 -e "WakeUp__SubnetBroadcastAddress=192.168.2.255" \
 --network host \
-ccrui/remotewakeup:latest
+ghcr.io/cr-zhichen/remotewakeup:main
 ```
 
 其中 `WakeUp__MacList__0__Name` 是第一个设备名称，
@@ -155,7 +155,7 @@ docker run -d --restart=always \
 -e "WakeUp__MacList__1__MAC=74:56:3C:7A:6F:71" \
 -e "WakeUp__SubnetBroadcastAddress=192.168.2.255" \
 --network host \
-ccrui/remotewakeup:latest
+ghcr.io/cr-zhichen/remotewakeup:main
 ```
 
 请注意，使用Docker运行时，因为Docker网络限制，您需要将 `WakeUp__SubnetBroadcastAddress` 设置为您的子网广播地址，而不是255.255.255.255。
