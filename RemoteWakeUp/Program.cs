@@ -202,6 +202,8 @@ app.MapControllers();
 
 app.UseEndpoints(endpoints => { endpoints.MapControllers(); });
 
+app.MapFallbackToFile("index.html");
+
 #endregion
 
 #region 静态文件配置

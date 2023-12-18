@@ -39,6 +39,15 @@ bld/
 msbuild.log
 msbuild.err
 msbuild.wrn
+wwwroot/
 
 # Visual Studio 2015
 .vs/
+
+# Log
+[Ll]ogs/
+
+# Sqlite files
+*.db
+*.db-shm
+*.db-wal

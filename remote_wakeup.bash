@@ -85,7 +85,7 @@ subnet_address=${subnet_address:-255.255.255.255}
 subnet="-e \"WakeUp__SubnetBroadcastAddress=$subnet_address\" "
 
 # 构建完整的Docker命令
-docker_command="docker run -d --restart=always --network host $swagger$recaptcha$password$port$devices$subnet --name=remote_wakeup ghcr.io/cr-zhichen/remotewakeup:main"
+docker_command="docker run -d --restart=always --network host $swagger$recaptcha$password$port$devices$subnet --name=remote_wakeup ghcr.io/cr-zhichen/remotewakeup:latest"
 
 # 执行Docker命令
 echo "执行的Docker命令: $docker_command"
