@@ -68,23 +68,26 @@ builder.Services.Configure<ApiBehaviorOptions>(opt => opt.SuppressModelStateInva
 #region JWT配置
 
 var section = builder.Configuration.GetSection("TokenOptions");
-var tokenOptions = section.Get<TokenOptions>();
+var tokenOptions = section.Get<TokenOptions>()!;
+
+// 检查配置并生成随机值
+if (string.IsNullOrEmpty(tokenOptions.SecretKey))
+    tokenOptions.SecretKey = Guid.NewGuid().ToString();
+if (string.IsNullOrEmpty(tokenOptions.Issuer))
+    tokenOptions.Issuer = Guid.NewGuid().ToString();
+if (string.IsNullOrEmpty(tokenOptions.Audience))
+    tokenOptions.Audience = Guid.NewGuid().ToString();
+
 builder.Services.AddTransient<IJwtService, JwtService>();
-builder.Services.Configure<TokenOptions>(section);
-builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
-    .AddJwtBearer(options =>
-    {
-        options.TokenValidationParameters = new TokenValidationParameters
-        {
-            ValidateIssuer = true,
-            ValidateAudience = true,
-            ValidateLifetime = true,
-            ValidateIssuerSigningKey = true,
-            ValidAudience = tokenOptions.Audience,
-            ValidIssuer = tokenOptions.Issuer,
-            IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(tokenOptions.SecretKey))
-        };
-    });
+builder.Services.Configure<TokenOptions>(options =>
+{
+    options.SecretKey = tokenOptions.SecretKey;
+    options.Issuer = tokenOptions.Issuer;
+    options.Audience = tokenOptions.Audience;
+    options.ExpireMinutes = tokenOptions.ExpireMinutes;
+});
+
+builder.Services.AddHostedService<TokenCleanupService>();
 
 #endregion
 
