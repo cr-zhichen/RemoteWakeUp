@@ -1,16 +1,12 @@
 using System.Reflection;
-using System.Text;
-using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.IdentityModel.Tokens;
 using Microsoft.OpenApi.Models;
 using RemoteWakeUp.Filter;
 using RemoteWakeUp.Jwt;
-using RemoteWakeUp.Static;
 using RemoteWakeUp.WS;
 using Microsoft.AspNetCore.HttpOverrides;
-using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.FileProviders;
+using RemoteWakeUp.Utils;
 using Serilog;
 
 #region 应用构建器与配置

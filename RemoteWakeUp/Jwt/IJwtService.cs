@@ -3,20 +3,21 @@ using System.Security.Claims;
 using System.Text;
 using Microsoft.Extensions.Options;
 using Microsoft.IdentityModel.Tokens;
-using RemoteWakeUp.Static;
 
 namespace RemoteWakeUp.Jwt;
 
-// 接口
+/// <summary>
+/// 表示JWT服务，该服务提供用于创建、验证和管理JWT令牌的功能。
+/// </summary>
 public interface IJwtService
 {
     /// <summary>
     /// 创建令牌
     /// </summary>
-    /// <param name="username"></param>
+    /// <param name="userId"></param>
     /// <param name="role"></param>
     /// <returns></returns>
-    Task<string> CreateTokenAsync(string username, string role);
+    Task<string> CreateTokenAsync(string userId, string role);
 
     /// <summary>
     /// 验证令牌身份
@@ -45,54 +46,63 @@ public interface IJwtService
     /// </summary>
     /// <param name="username"></param>
     /// <returns></returns>
-    Task LogoutByUsernameAsync(string username);
+    Task LogoutByIdAsync(string username);
 }
 
-// 实现
+/// <summary>
+/// 表示JWT服务，该服务提供用于创建、验证和管理JWT令牌的功能。
+/// </summary>
 public class JwtService : IJwtService
 {
-    public Jwt.TokenOptions TokenOptions { get; }
-
-    public JwtService(IOptions<Jwt.TokenOptions> options)
+    /// <summary>
+    /// 构造函数
+    /// </summary>
+    /// <param name="options"></param>
+    public JwtService(IOptions<TokenOptions> options)
     {
         TokenOptions = options.Value;
     }
 
     /// <summary>
+    /// 令牌选项
+    /// </summary>
+    private TokenOptions TokenOptions { get; }
+
+    /// <summary>
     /// 创建令牌
     /// </summary>
-    /// <param name="username"></param>
+    /// <param name="userId"></param>
     /// <param name="role"></param>
     /// <returns></returns>
-    public Task<string> CreateTokenAsync(string username, string role)
+    public Task<string> CreateTokenAsync(string userId, string role)
     {
         // 添加一些需要的键值对
-        Claim[] claims = new[]
-        {
-            new Claim("user", username),
+        Claim[] claims = {
+            new Claim("user", userId),
             new Claim("role", role)
         };
 
         var keyBytes = Encoding.UTF8.GetBytes(TokenOptions.SecretKey);
-        var creds = new SigningCredentials(new SymmetricSecurityKey(keyBytes),
+        var credentials = new SigningCredentials(new SymmetricSecurityKey(keyBytes),
             SecurityAlgorithms.HmacSha256);
 
-        var expires = DateTime.Now.AddMinutes(TokenOptions.ExpireMinutes);
+        // 判断是否设置永不过期
+        DateTime? expires = null;
+        if (TokenOptions.ExpireMinutes != -1)
+        {
+            expires = DateTime.Now.AddMinutes(TokenOptions.ExpireMinutes);
+        }
 
         var jwtSecurityToken = new JwtSecurityToken(
             issuer: TokenOptions.Issuer, // 签发者
             audience: TokenOptions.Audience, // 接收者
             claims: claims, // payload
-            expires: expires, // 过期时间
-            signingCredentials: creds); // 令牌
+            expires: expires, // 过期时间, 当 ExpireMinutes 为 -1 时，此处为 null，代表无过期时间
+            signingCredentials: credentials); // 令牌
 
         var token = new JwtSecurityTokenHandler().WriteToken(jwtSecurityToken);
-        TokenList.TokenLists.Add(new TokenList.TokenItem()
-        {
-            Username = username,
-            Token = token,
-            ExpireTime = expires
-        });
+        TokenWhiteList.AddToken(userId, token, expires ?? DateTime.MaxValue);
+
         return Task.FromResult(token);
     }
 
@@ -105,7 +115,7 @@ public class JwtService : IJwtService
     public Task<bool> ValidateTokenAsync(string token, string requiredRole = "")
     {
         //判断令牌是否在缓存中
-        var isValid = TokenList.TokenLists.Any(x => x.Token == token);
+        var isValid = TokenWhiteList.ContainsToken(token);
 
         if (!isValid)
         {
@@ -115,12 +125,13 @@ public class JwtService : IJwtService
         var tokenHandler = new JwtSecurityTokenHandler();
         var validationParameters = new TokenValidationParameters
         {
-            ValidateIssuerSigningKey = true,
-            IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(TokenOptions.SecretKey)),
             ValidateIssuer = true,
-            ValidIssuer = TokenOptions.Issuer,
             ValidateAudience = true,
-            ValidAudience = TokenOptions.Audience
+            ValidateLifetime = TokenOptions.ExpireMinutes != -1,
+            ValidateIssuerSigningKey = true,
+            ValidAudience = TokenOptions.Audience,
+            ValidIssuer = TokenOptions.Issuer,
+            IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(TokenOptions.SecretKey))
         };
 
         try
@@ -188,11 +199,8 @@ public class JwtService : IJwtService
     /// <returns></returns>
     public Task LogoutAsync(string token)
     {
-        var tokenToRemove = TokenList.TokenLists.Find(x => x.Token == token);
-        if (tokenToRemove != null)
-        {
-            TokenList.TokenLists.Remove(tokenToRemove);
-        }
+        //从TokenList.TokenLists中移除令牌
+        TokenWhiteList.RemoveToken(token);
 
         return Task.CompletedTask;
     }
@@ -200,15 +208,11 @@ public class JwtService : IJwtService
     /// <summary>
     /// 根据用户名注销令牌
     /// </summary>
-    /// <param name="username"></param>
+    /// <param name="userId"></param>
     /// <returns></returns>
-    public Task LogoutByUsernameAsync(string username)
+    public Task LogoutByIdAsync(string userId)
     {
-        var tokenToRemove = TokenList.TokenLists.Find(x => x.Username == username);
-        if (tokenToRemove != null)
-        {
-            TokenList.TokenLists.Remove(tokenToRemove);
-        }
+        TokenWhiteList.RemoveTokenByUserId(userId);
 
         return Task.CompletedTask;
     }
