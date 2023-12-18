@@ -53,17 +53,6 @@ fi
 # 程序运行端口，默认为9000
 read -p "请输入程序运行端口 [默认: 9000]: " port
 port=${port:-9000}
-
-# 询问用户是否需要开启端口映射，默认为不开启
-read -p "是否需要开启端口映射 (yes/no) [默认: no](只有在Windows下使用WSL2运行Docker时需要开启): " use_port_mapping
-use_port_mapping=${use_port_mapping:-no}
-if [ "$use_port_mapping" == "yes" ]; then
-    read -p "请输入端口映射的外部端口: " port_mapping
-    port_mapping="-p \"$port_mapping:$port\" "
-else
-    port_mapping="--network host "
-fi
-
 port="-e \"Kestrel__Endpoints__Http__Url=http://*:$port\" "
 
 # 询问需要开启的设备数量
@@ -96,7 +85,7 @@ subnet_address=${subnet_address:-255.255.255.255}
 subnet="-e \"WakeUp__SubnetBroadcastAddress=$subnet_address\" "
 
 # 构建完整的Docker命令
-docker_command="docker run -d --restart=always $port_mapping$swagger$recaptcha$password$port$devices$subnet --name=remote_wakeup ghcr.io/cr-zhichen/remotewakeup:main"
+docker_command="docker run -d --restart=always --network host $swagger$recaptcha$password$port$devices$subnet --name=remote_wakeup ghcr.io/cr-zhichen/remotewakeup:main"
 
 # 执行Docker命令
 echo "执行的Docker命令: $docker_command"
