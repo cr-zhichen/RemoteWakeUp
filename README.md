@@ -12,6 +12,12 @@
 
 ## 如何开始 🚀
 
+一键启动脚本：
+
+```bash
+bash <(curl -Ls https://raw.githubusercontent.com/cr-zhichen/RemoteWakeUp/main/remote_wakeup.bash)
+```
+
 <details>
   <summary>从 DockerHub 拉取和运行</summary>
 
